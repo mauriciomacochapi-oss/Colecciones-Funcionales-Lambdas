@@ -2,6 +2,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import java.util.Locale
+
+
 
 /**
  * Ejercicio 4: Funciones como Argumentos

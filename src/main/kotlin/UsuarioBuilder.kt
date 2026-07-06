@@ -34,47 +34,51 @@ class UsuarioBuilder {
     // Parte A: Uso del parámetro implícito 'it'
 
     fun procesarNumeros(numeros: List<Int>): List<Int> {
-        TODO("Implementar: Filtrar números pares y multiplicarlos por 10, usando 'it'")
+        return numeros.filter { it % 2 == 0 }.map { it * 10 }
     }
 
     fun validarUsuarios(usuarios: List<Usuario>): List<List<Validacion>> {
-        TODO(
-            """
-            Implementar validación de usuarios usando 'it':
-            - Validar que el nombre no esté vacío
-            - Validar que el email contenga '@'
-            - Validar que tenga al menos un rol
-            Retornar lista de validaciones por cada usuario
-        """,
-        )
+        return usuarios.map {
+            listOf(
+                Validacion("nombre", it.nombre.isNotEmpty(), "El nombre no debe estar vacío"),
+                Validacion("email", it.email.contains("@"), "El email debe contener @"),
+                Validacion("roles", it.roles.isNotEmpty(), "Debe tener al menos un rol")
+            )
+        }
     }
 
     fun procesarTextos(textos: List<String>): List<String> {
-        TODO("Implementar: Limpiar espacios, convertir a minúsculas y filtrar vacíos usando 'it'")
+        return textos.map { it.trim() }.map { it.lowercase() }.filter { it.isNotEmpty() }
     }
 
     // Parte B: Función run
 
     fun calcularNivelAcceso(usuario: Usuario): Int {
-        TODO(
-            """
-            Implementar usando 'run':
-            - Si activo: +10 puntos
-            - Por cada rol: +5 puntos
-            - Si email contiene '@empresa.com': +5 puntos
-        """,
-        )
+        return usuario.run {
+            var puntos = 0
+            if (activo) puntos += 10
+            puntos += roles.size * 5
+            if (email.contains("@empresa.com")) puntos += 5
+            puntos
+        }
     }
 
     fun crearUsuarioConTipo(tipo: String): Usuario {
-        TODO(
-            """
-            Implementar usando 'run' para decidir configuración:
-            - Si tipo es "ADMIN": roles=[ADMIN], nivelPrivacidad=3, notificaciones=true
-            - Si tipo es "USER": roles=[USER], nivelPrivacidad=1, notificaciones=false
-            - Otros casos: configuración por defecto
-        """,
-        )
+        return Usuario().run {
+            when (tipo) {
+                "ADMIN" -> {
+                    roles.add("ADMIN")
+                    configuracion.nivelPrivacidad = 3
+                    configuracion.notificaciones = true
+                }
+                "USER" -> {
+                    roles.add("USER")
+                    configuracion.nivelPrivacidad = 1
+                    configuracion.notificaciones = false
+                }
+            }
+            this
+        }
     }
 
     // Parte C: Función apply
@@ -84,22 +88,20 @@ class UsuarioBuilder {
         email: String,
         roles: List<String>,
     ): Usuario {
-        TODO(
-            """
-            Implementar usando 'apply':
-            - Crear usuario y configurar todas sus propiedades
-            - Establecer activo = true
-            - Asignar roles
-            - Crear configuración por defecto
-        """,
-        )
+        return Usuario().apply {
+            this.nombre = nombre
+            this.email = email
+            this.activo = true
+            this.roles = roles.toMutableList()
+            this.configuracion = ConfiguracionUsuario()
+        }
     }
 
     fun actualizarUsuario(
         usuario: Usuario,
         actualizacion: Usuario.() -> Unit,
     ): Usuario {
-        TODO("Implementar: Usar 'apply' para aplicar la función de actualización al usuario")
+        return usuario.apply(actualizacion)
     }
 
     // Parte D: Función also
@@ -109,90 +111,108 @@ class UsuarioBuilder {
         email: String,
         onLog: (String) -> Unit,
     ): Usuario {
-        TODO(
-            """
-            Implementar usando 'also' para logging:
-            - Crear usuario
-            - Loggear "Usuario creado: [nombre]"
-            - Asignar email y loggear "Email asignado: [email]"
-            - Activar usuario y loggear "Usuario activado"
-        """,
-        )
+        return Usuario().also { onLog("Usuario creado: $nombre") }
+            .apply { this.nombre = nombre; this.email = email }
+            .also { onLog("Email asignado: $email") }
+            .apply { this.activo = true }
+            .also { onLog("Usuario activado") }
     }
 
     fun crearYValidar(
         nombre: String,
         email: String,
     ): Pair<Usuario, Boolean> {
-        TODO(
-            """
-            Implementar usando 'also' para validación:
-            - Crear usuario
-            - Validar que nombre no esté vacío y email contenga '@'
-            - Retornar par (usuario, esValido)
-        """,
-        )
+        var esValido = false
+        val usuario = Usuario(nombre = nombre, email = email).also {
+            esValido = it.nombre.isNotEmpty() && it.email.contains("@")
+        }
+        return Pair(usuario, esValido)
     }
+
 
     // Parte E: Función let
 
     fun procesarEmailOpcional(email: String?): String {
-        TODO(
-            """
-            Implementar usando 'let':
-            - Si email no es null: "Usuario con email: [email]"
-            - Si email es null: "Usuario sin email"
-        """,
-        )
+        return email?.let { "Usuario con email: $it" } ?: "Usuario sin email"
     }
 
     fun generarMensajesBienvenida(usuarios: List<Usuario>): List<String> {
-        TODO(
-            """
-            Implementar usando 'let':
-            - Solo procesar usuarios activos con email no vacío
-            - Generar mensaje "Bienvenido/a [nombre] ([email])"
-        """,
-        )
+        return usuarios
+            .filter { it.activo && it.email.isNotEmpty() }
+            .map { usuario ->
+                usuario.let { "Bienvenido/a ${it.nombre} (${it.email})" }
+            }
     }
 
     // Parte F: Combinación de Scope Functions
 
     fun procesarUsuarioComplejo(datosBase: Map<String, String>): Usuario? {
-        TODO(
-            """
-            Implementar combinando scope functions:
-            1. Verificar que existan 'nombre' y 'email' (si no, retornar null)
-            2. Crear usuario con 'run'
-            3. Configurar propiedades con 'apply'
-            4. Si departamento es "IT", usar 'also' para configuración especial (tema oscuro, rol IT_USER)
-            5. Retornar usuario configurado
-        """,
-        )
+        val nombre = datosBase["nombre"] ?: return null
+        val email = datosBase["email"] ?: return null
+        val departamento = datosBase["departamento"]
+
+        return Usuario().run {
+            apply {
+                this.nombre = nombre
+                this.email = email
+            }.also {
+                if (departamento == "IT") {
+                    it.roles.add("IT_USER")
+                    it.configuracion.tema = "oscuro"
+                }
+            }
+        }
     }
 
     fun procesarLoteUsuarios(usuarios: List<Usuario>): List<Usuario> {
-        TODO(
-            """
-            Implementar pipeline con scope functions:
-            1. Activar todos los usuarios (apply)
-            2. Asignar rol USER si no tienen roles (also)
-            3. Configurar notificaciones = true (apply)
-            4. Si nombre es "Admin", agregar rol ADMIN y nivelPrivacidad = 3 (run)
-        """,
-        )
+        return usuarios.map { usuario ->
+            usuario.apply {
+                activo = true
+            }.also {
+                if (it.roles.isEmpty()) {
+                    it.roles.add("USER")
+                }
+            }.apply {
+                configuracion.notificaciones = true
+            }.run {
+                if (nombre == "Admin") {
+                    roles.add("ADMIN")
+                    configuracion.nivelPrivacidad = 3
+                }
+                this
+            }
+        }
     }
 
     fun parsearYCrearUsuario(datosRaw: String): Usuario? {
-        TODO(
-            """
-            Implementar parsing completo:
-            1. Parsear formato "clave:valor|clave:valor|..."
-            2. Crear usuario con los datos parseados
-            3. Usar scope functions apropiadas para cada transformación
-            4. Retornar null si el formato es inválido
-        """,
-        )
+        return try {
+            val pares = datosRaw.split("|")
+                .filter { it.isNotBlank() }
+                .associate {
+                    val tokens = it.split(":")
+                    tokens[0].trim() to tokens[1].trim()
+                }
+
+            val idStr = pares["id"] ?: return null
+            val nombre = pares["nombre"] ?: return null
+            val email = pares["email"] ?: return null
+
+            Usuario().apply {
+                this.id = idStr.toInt()
+                this.nombre = nombre
+                this.email = email
+                this.activo = pares["activo"]?.toBoolean() ?: false
+                pares["roles"]?.let { rStr ->
+                    this.roles = rStr.split(",").map { it.trim() }.toMutableList()
+                }
+                this.configuracion = ConfiguracionUsuario().apply {
+                    pares["tema"]?.let { this.tema = it }
+                    pares["idioma"]?.let { this.idioma = it }
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 

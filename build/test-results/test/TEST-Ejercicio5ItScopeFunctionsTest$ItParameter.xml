@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Parte A: Uso del parámetro implícito 'it'" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-07-06T14:39:46" hostname="213-16" time="0.097">
+  <properties/>
+  <testcase name="Debe usar 'it' en operaciones con colecciones" classname="Ejercicio5ItScopeFunctionsTest$ItParameter" time="0.097"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
